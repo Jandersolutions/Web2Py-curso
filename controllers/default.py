@@ -78,7 +78,7 @@ def atualizar_notas():
     form = SQLFORM(Notas, id_notas , showid=False)
     if form.process().accepted:
         session.flash = "Nota atualizada com sucesso!"
-        redirect(URL('ver_notas' , args[id_notas]))
+        redirect(URL('ver_notas' , args=[id_notas]))
     elif form.errors:
         response.flash = "Erros no formulario!"
     else:
@@ -90,7 +90,7 @@ def apagar_notas():
     db(Notas.id == id_notas).delete()
     session.flash = "Nota apagada!"
     redirect(URL('ver_notas'))
-    
+
 
 def nova_mensagem():
     form = SQLFORM(Forum)
@@ -129,3 +129,31 @@ def apagar_mensagem():
     db(Forum.id == id_mensagem).delete()
     session.flash = "Mensagem apagada"
     redirect(URL('Forum'))
+
+def novo_arquivo():
+    form = crud.create(Biblioteca)
+    return dict(form=form)
+
+def editar_arquivo():
+    id_arquivo = request.args(0 , cast=int)
+    form = crud.update(Biblioteca, id_arquivo)
+    return dict(form=form)
+
+def exibir_arquivos():
+    grid = SQLFORM.grid(Biblioteca)
+    return dict(grid=grid)
+
+def contato():
+    form = SQLFORM.factory(
+    Field('nome' , requires=IS_NOT_EMPTY()),
+    Field('email' , requires=IS_EMAIL()),
+    Field('mensagem' , 'text' , requires=IS_NOT_EMPTY())
+    )
+    if form.process().accepted:
+        session.flash = "Mensagem Recebida"
+        redirect(URL('index'))
+    elif form.errors:
+        response.flash = "Erros no formulario"
+    else:
+        response.flash = "Preencha o formulario"
+    return dict(form=form)
